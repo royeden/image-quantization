@@ -27,11 +27,13 @@ export enum ErrorDiffusionArrayKernel {
   SierraLite,
 }
 
+export type Kernel = [number, number, number][];
+
 // http://www.tannerhelland.com/4660/dithering-eleven-algorithms-source-code/
 export class ErrorDiffusionArray extends AbstractImageQuantizer {
   private _minColorDistance: number;
   private _serpentine: boolean;
-  private _kernel!: number[][];
+  private _kernel!: Kernel;
   /** true = GIMP, false = XNVIEW */
   private _calculateErrorLikeGIMP: boolean;
 
@@ -39,7 +41,7 @@ export class ErrorDiffusionArray extends AbstractImageQuantizer {
 
   constructor(
     colorDistanceCalculator: AbstractDistanceCalculator,
-    kernel: ErrorDiffusionArrayKernel,
+    kernel: ErrorDiffusionArrayKernel | Kernel,
     serpentine = true,
     minimumColorDistanceToDither = 0,
     calculateErrorLikeGIMP = false,
@@ -198,7 +200,10 @@ export class ErrorDiffusionArray extends AbstractImageQuantizer {
     }
   }
 
-  private _setKernel(kernel: ErrorDiffusionArrayKernel) {
+  private _setKernel(kernel: ErrorDiffusionArrayKernel | Kernel) {
+    if (Array.isArray(kernel)) {
+      this._kernel = kernel as Kernel;
+    }
     switch (kernel) {
       case ErrorDiffusionArrayKernel.FloydSteinberg:
         this._kernel = [

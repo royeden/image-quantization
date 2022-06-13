@@ -11,6 +11,7 @@ import * as palette from './palette';
 import { AbstractDistanceCalculator } from './distance/distanceCalculator';
 import { PointContainer } from './utils/pointContainer';
 import { Palette } from './utils/palette';
+import { Kernel } from './image/array';
 
 const setImmediateImpl =
   typeof setImmediate === 'function'
@@ -210,8 +211,12 @@ function colorDistanceFormulaToColorDistance(
 
 function imageQuantizationToImageQuantizer(
   distanceCalculator: AbstractDistanceCalculator,
-  imageQuantization: ImageQuantization = 'floyd-steinberg',
+  imageQuantization: ImageQuantization | Kernel = 'floyd-steinberg',
 ) {
+  if (Array.isArray(imageQuantization)) {
+    return new image.ErrorDiffusionArray(distanceCalculator, imageQuantization);
+  }
+
   switch (imageQuantization) {
     case 'nearest':
       return new image.NearestColor(distanceCalculator);
